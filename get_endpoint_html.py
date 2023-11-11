@@ -1,37 +1,16 @@
 import time
 from selenium import webdriver
-from selenium.webdriver import Chrome
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
-from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium import webdriver
 from selenium.common.exceptions import ElementClickInterceptedException
 import os
-import shutil
-import streamlit as st
 from selenium.webdriver.chrome.options import Options
 
 
-@st.cache_resource(show_spinner=False)
-def get_logpath():
-    return os.path.join(os.getcwd(), "selenium.log")
-
-
-@st.cache_resource(show_spinner=False)
-def get_chromedriver_path():
-    return shutil.which("chromedriver")
-
-
 # Author: Ayush Garg
-def get_webdriver_service(logpath):
-    service = Service(
-        executable_path=get_chromedriver_path(),
-        log_output=logpath,
-    )
-    return service
 
 
 def setup_driver():
@@ -39,18 +18,11 @@ def setup_driver():
     The function `setup_driver` returns a Chrome WebDriver instance with specified options and settings.
     :return: The function `setup_driver()` returns a Chrome WebDriver instance.
     """
-    options = webdriver.ChromeOptions()
-    options.add_argument("--headless")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
+    options = Options()
+    options.add_argument("--headless=new")
     options.add_argument("--disable-gpu")
-    options.add_argument("--disable-features=NetworkService")
-    options.add_argument("--window-size=1920x1080")
-    options.add_argument("--disable-features=VizDisplayCompositor")
-    logpath = get_logpath()
-    driver = webdriver.Chrome(
-        options=options, service=get_webdriver_service(logpath=logpath)
-    )
+
+    driver = webdriver.Chrome(options=options)
     return driver
 
 
