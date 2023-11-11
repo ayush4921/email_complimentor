@@ -41,7 +41,7 @@ if uploaded_file is not None:
     modified_prompt = st.text_area("Modify the prompt", value=existing_prompt)
     # Check if {page_text} is still in the modified prompt
     if "{page_text}" not in modified_prompt:
-        st.error("Your prompt must contain 'page_text}'")
+        st.error("Your prompt must contain '{page_text}'")
     # Process and Download Button
     if st.button("Generate Compliments"):
         print(website_column)
