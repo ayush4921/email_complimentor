@@ -9,9 +9,29 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium import webdriver
 from selenium.common.exceptions import ElementClickInterceptedException
+import os
+import shutil
+import streamlit as st
+from selenium.webdriver.chrome.options import Options
+
+
+@st.cache_resource(show_spinner=False)
+def get_logpath():
+    return os.path.join(os.getcwd(), "selenium.log")
+
+
+@st.cache_resource(show_spinner=False)
+def get_chromedriver_path():
+    return shutil.which("chromedriver")
 
 
 # Author: Ayush Garg
+def get_webdriver_service(logpath):
+    service = Service(
+        executable_path=get_chromedriver_path(),
+        log_output=logpath,
+    )
+    return service
 
 
 def setup_driver():
@@ -21,10 +41,16 @@ def setup_driver():
     """
     options = webdriver.ChromeOptions()
     options.add_argument("--headless")
-    options.page_load_strategy = "none"
-    chrome_path = ChromeDriverManager().install()
-    chrome_service = Service(chrome_path)
-    driver = Chrome(options=options, service=chrome_service)
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--disable-features=NetworkService")
+    options.add_argument("--window-size=1920x1080")
+    options.add_argument("--disable-features=VizDisplayCompositor")
+    logpath = get_logpath()
+    driver = webdriver.Chrome(
+        options=options, service=get_webdriver_service(logpath=logpath)
+    )
     return driver
 
 
