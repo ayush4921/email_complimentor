@@ -8,6 +8,7 @@ from selenium import webdriver
 from selenium.common.exceptions import ElementClickInterceptedException
 import os
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service  # type: ignore
 
 
 # Author: Ayush Garg
