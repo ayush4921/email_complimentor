@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 from io import StringIO
 from email_complimentor import ComplimentGenerator  # Import your existing script
-import streamlit_authenticator as stauth
 
 
 @st.cache_data
@@ -40,11 +39,13 @@ if uploaded_file is not None:
     # Display and Modify Existing Prompt
     existing_prompt = generator.modified_prompt
     modified_prompt = st.text_area("Modify the prompt", value=existing_prompt)
+    password = st.text_area("Enter password")
+
     # Check if {page_text} is still in the modified prompt
     if "{page_text}" not in modified_prompt:
         st.error("Your prompt must contain '{page_text}'")
     # Process and Download Button
-    if st.button("Generate Compliments"):
+    if st.button("Generate Compliments") and password == st.secrets["password"]:
         print(website_column)
         with st.spinner("Wait for it... generating compliments!"):
             updated_csv = run_compliment_generator(
