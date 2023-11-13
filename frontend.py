@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from io import StringIO
 from email_complimentor import ComplimentGenerator  # Import your existing script
+import streamlit_authenticator as stauth
 
 
 @st.cache_data

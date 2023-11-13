@@ -9,6 +9,7 @@ from selenium.common.exceptions import ElementClickInterceptedException
 import os
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service  # type: ignore
+from selenium.common.exceptions import TimeoutException
 
 
 # Author: Ayush Garg
@@ -68,47 +69,64 @@ def safe_click_element(driver, element):
         driver.execute_script("arguments[0].click();", element)
 
 
-def get_page_text(driver, url):
-    """
-    The function `get_page_source` takes a web driver and a URL as input, navigates to the URL using the
-    driver, waits for 3 seconds, and returns the page source code.
-
-    :param driver: The driver parameter is an instance of a web driver, such as Selenium's WebDriver. It
-    is used to control the web browser and perform actions like navigating to a URL, interacting with
-    elements on the page, and retrieving the page source
-    :param url: The URL of the webpage you want to retrieve the source code from
-    :return: the page source of the website after the driver navigates to the specified URL.
-    """
-    driver.get(url)
-    # Wait until the body of the page is loaded
-    WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.TAG_NAME, "body"))
-    )
+def connect_to_url(driver, url):
     try:
-        all_text = driver.find_element(By.TAG_NAME, "body").text
-        # Extracting elements
+        driver.get(url)
+        return True
+    except Exception as e:
+        print(f"Error connecting to URL: {e}")
+        return False
+
+
+def wait_for_page_load(driver):
+    try:
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.TAG_NAME, "body"))
+        )
+        return True
+    except TimeoutException:
+        print("Timeout while waiting for page to load.")
+        return False
+    except Exception as e:
+        print(f"Error waiting for page load: {e}")
+        return False
+
+
+def extract_page_elements(driver):
+    try:
         title = driver.title
-        headers = driver.find_elements(By.TAG_NAME, "h1")
-        navigation_menu = driver.find_element(
-            By.TAG_NAME, "nav"
-        )  # Adjust based on the website
+        body_text = driver.find_element(By.TAG_NAME, "body").text
+        headers = [header.text for header in driver.find_elements(By.TAG_NAME, "h1")]
+        navigation_menu = driver.find_element(By.TAG_NAME, "nav")
         footer = driver.find_element(By.TAG_NAME, "footer")
         images = driver.find_elements(By.TAG_NAME, "img")
 
-        # Processing elements (pseudo-code)
-        website_summary = {
+        return {
             "title": title,
-            "all_text": all_text,
-            "headers": [header.text for header in headers],
+            "body_text": body_text,
+            "headers": headers,
             "navigation_items": navigation_menu.text.split("\n")
             if navigation_menu
             else [],
             "footer_content": footer.text if footer else "",
             "image_count": len(images),
-            # Add more as needed
         }
-    except:
-        website_summary = "i couldn't retrieve the text of the website, just enter a compliment for a website"
+    except Exception as e:
+        print(f"Error extracting page elements: {e}")
+        return None
+
+
+def get_page_text(driver, url):
+    if not connect_to_url(driver, url):
+        return None
+
+    if not wait_for_page_load(driver):
+        return None
+
+    website_summary = extract_page_elements(driver)
+    if website_summary is None:
+        return "I couldn't retrieve the text of the website, just enter a compliment for a website"
+
     return str(website_summary)[:3700]
 
 

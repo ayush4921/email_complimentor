@@ -40,9 +40,15 @@ class ComplimentGenerator:
 
         # Loop over each website link and generate a compliment
         for website_link in website_links:
-            page_text = self.fetch_page_text(website_link)
-            compliment = self.generate_compliment(page_text)
-            compliments.append(compliment)
+            try:
+                page_text = self.fetch_page_text(website_link)
+            except:
+                page_text = None
+            if page_text:
+                compliment = self.generate_compliment(page_text)
+                compliments.append(compliment)
+            else:
+                compliments.append(False)
 
         # Add the compliments as a new column to the dataframe
         spreadsheet["compliment"] = compliments
