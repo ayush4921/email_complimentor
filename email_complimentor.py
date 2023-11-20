@@ -3,6 +3,9 @@ import pandas as pd
 from openai import OpenAI
 import time
 from get_endpoint_html import setup_driver, get_page_text
+import yagmail
+
+import streamlit as st
 
 
 class ComplimentGenerator:
@@ -53,3 +56,29 @@ class ComplimentGenerator:
         # Add the compliments as a new column to the dataframe
         spreadsheet["compliment"] = compliments
         return spreadsheet
+
+    def send_results_email(self, dataframe, recipient_email):
+        # Convert DataFrame to CSV
+        filename = "compliments.csv"
+        dataframe.to_csv(filename, index=False)
+
+        # Initialize yagmail
+        sender_email = st.secrets["gmail_email"]
+        sender_password = st.secrets["gmail_password"]
+        yagmail.register(sender_email, sender_password)
+
+        yag = yagmail.SMTP(sender_email)
+
+        # Email subject and body
+        subject = "Here's your results for compliment generation"
+        body = "Please find attached the compliments generated for your websites."
+
+        # Sending the email
+        yag.send(
+            to=recipient_email,
+            subject=subject,
+            contents=body,
+            attachments=filename,
+        )
+
+        print(f"Email sent successfully to {recipient_email}")

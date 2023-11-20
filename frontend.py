@@ -40,7 +40,7 @@ if uploaded_file is not None:
     existing_prompt = generator.modified_prompt
     modified_prompt = st.text_area("Modify the prompt", value=existing_prompt)
     password = st.text_area("Enter password")
-
+    email = st.text_area("Enter email you want the result file sent to.")
     # Check if {page_text} is still in the modified prompt
     if "{page_text}" not in modified_prompt:
         st.error("Your prompt must contain '{page_text}'")
@@ -55,7 +55,7 @@ if uploaded_file is not None:
         st.write("Processing Complete")
 
         csv = convert_df(updated_csv)
-
+        generator.send_results_email(updated_csv, email)
         st.download_button(
             "Press to Download", csv, "file.csv", "text/csv", key="download-csv"
         )
