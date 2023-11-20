@@ -3,9 +3,13 @@ import pandas as pd
 from openai import OpenAI
 import time
 from get_endpoint_html import setup_driver, get_page_text
-import yagmail
-
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
 import streamlit as st
+import ssl
 
 
 class ComplimentGenerator:
@@ -62,23 +66,37 @@ class ComplimentGenerator:
         filename = "compliments.csv"
         dataframe.to_csv(filename, index=False)
 
-        # Initialize yagmail
-        sender_email = st.secrets["gmail_email"]
-        sender_password = st.secrets["gmail_password"]
-        yagmail.register(sender_email, sender_password)
+        # Set up the email server
+        context = ssl.create_default_context()
 
-        yag = yagmail.SMTP(sender_email)
+        with smtplib.SMTP("smtp.gmail.com", 587) as server:
+            server.starttls()
+            sender_email = st.secrets["gmail_email"]
+            sender_password = st.secrets["gmail_password"]
+            # Login to the email server
+            server.login(sender_email, sender_password)
 
-        # Email subject and body
-        subject = "Here's your results for compliment generation"
-        body = "Please find attached the compliments generated for your websites."
+            # Create the email
+            msg = MIMEMultipart()
+            msg["From"] = sender_email
+            msg["To"] = recipient_email
+            msg["Subject"] = "Here's your results for compliment generation"
 
-        # Sending the email
-        yag.send(
-            to=recipient_email,
-            subject=subject,
-            contents=body,
-            attachments=filename,
-        )
+            # Email body
+            body = "Please find attached the compliments generated for your websites."
+            msg.attach(MIMEText(body, "plain"))
+
+            # Attach the CSV file
+            attachment = open(filename, "rb")
+            part = MIMEBase("application", "octet-stream")
+            part.set_payload((attachment).read())
+            encoders.encode_base64(part)
+            part.add_header(
+                "Content-Disposition", "attachment; filename= %s" % filename
+            )
+            msg.attach(part)
+
+            # Send the email
+            server.send_message(msg)
 
         print(f"Email sent successfully to {recipient_email}")

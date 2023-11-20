@@ -3,5 +3,3 @@ pandas
 streamlit
 selenium
 webdriver_manager
-yagmail
-keyring
