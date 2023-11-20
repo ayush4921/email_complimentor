@@ -21,6 +21,9 @@ def run_compliment_generator(generator, modified_prompt, website_column):
 
 
 st.title("Compliment Generator for Websites")
+if "generated_file" not in st.session_state:
+    st.session_state.generated_file = None
+
 
 # Upload CSV
 uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
@@ -46,17 +49,22 @@ if uploaded_file is not None:
     if "{page_text}" not in modified_prompt:
         st.error("Your prompt must contain '{page_text}'")
     # Process and Download Button
-    if st.button("Generate Compliments") and password == st.secrets["password"]:
-        print(website_column)
-        with st.spinner("Wait for it... generating compliments!"):
-            updated_csv = run_compliment_generator(
-                generator, modified_prompt, website_column
-            )
-        st.success("Done!")
-        st.write("Processing Complete")
-
-        csv = convert_df(updated_csv)
-        st.download_button(
-            "Press to Download", csv, "file.csv", "text/csv", key="download-csv"
+if st.button("Generate Compliments") and password == st.secrets["password"]:
+    with st.spinner("Wait for it... generating compliments!"):
+        updated_csv = run_compliment_generator(
+            generator, modified_prompt, website_column
         )
-        generator.send_results_email(updated_csv, email)
+    st.session_state.generated_file = convert_df(updated_csv)
+    st.success("Done!")
+    generator.send_results_email(updated_csv, email)
+
+# Download Button - only if file is generated
+if st.session_state.generated_file is not None:
+    st.write("Processing Complete")
+    st.download_button(
+        "Press to Download",
+        st.session_state.generated_file,
+        "file.csv",
+        "text/csv",
+        key="download-csv",
+    )
