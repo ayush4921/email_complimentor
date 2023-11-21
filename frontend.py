@@ -29,7 +29,9 @@ if "generated_file" not in st.session_state:
 uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
 if uploaded_file is not None:
     # Convert to DataFrame and display
-    email = st.text_input("Enter email you want the result file sent to.")
+    email = st.text_input(
+        "Enter email you want the result file sent to. Don't use school emails."
+    )
     dataframe = pd.read_csv(uploaded_file)
     st.write(dataframe)
     api_key = st.secrets["openai_api"]
