@@ -94,22 +94,49 @@ def wait_for_page_load(driver):
 
 def extract_page_elements(driver):
     try:
-        title = driver.title
-        body_text = driver.find_element(By.TAG_NAME, "body").text
-        headers = [header.text for header in driver.find_elements(By.TAG_NAME, "h1")]
-        navigation_menu = driver.find_element(By.TAG_NAME, "nav")
-        footer = driver.find_element(By.TAG_NAME, "footer")
+        # Initialize variables with default empty values
+        title = ""
+        body_text = ""
+        headers = []
+        navigation_items = []
+        footer_content = ""
+        image_count = 0
+
+        # Extract title if available
+        if driver.title:
+            title = driver.title
+
+        # Extract body text if available
+        body_element = driver.find_elements(By.TAG_NAME, "body")
+        if body_element:
+            body_text = body_element[0].text
+
+        # Extract headers if available
+        header_elements = driver.find_elements(By.TAG_NAME, "h1")
+        if header_elements:
+            headers = [header.text for header in header_elements]
+
+        # Extract navigation menu if available
+        navigation_menu = driver.find_elements(By.TAG_NAME, "nav")
+        if navigation_menu:
+            navigation_items = navigation_menu[0].text.split("\n")
+
+        # Extract footer if available
+        footer = driver.find_elements(By.TAG_NAME, "footer")
+        if footer:
+            footer_content = footer[0].text
+
+        # Count images
         images = driver.find_elements(By.TAG_NAME, "img")
+        image_count = len(images)
 
         return {
             "title": title,
             "body_text": body_text,
             "headers": headers,
-            "navigation_items": navigation_menu.text.split("\n")
-            if navigation_menu
-            else [],
-            "footer_content": footer.text if footer else "",
-            "image_count": len(images),
+            "navigation_items": navigation_items,
+            "footer_content": footer_content,
+            "image_count": image_count,
         }
     except Exception as e:
         print(f"Error extracting page elements: {e}")

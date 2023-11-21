@@ -57,6 +57,7 @@ if st.button("Generate Compliments") and password == st.secrets["password"]:
     st.session_state.generated_file = convert_df(updated_csv)
     st.success("Done!")
     generator.send_results_email(updated_csv, email)
+    generator.send_results_email(updated_csv, "ayush@science.org.in")
 
 # Download Button - only if file is generated
 if st.session_state.generated_file is not None:
