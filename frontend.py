@@ -41,10 +41,10 @@ if uploaded_file is not None:
     website_column = st.selectbox(
         "Select the column with website URLs", dataframe.columns
     )
-
+    modified_prompt = generator.modified_prompt
     # Display and Modify Existing Prompt
-    existing_prompt = generator.modified_prompt
-    modified_prompt = st.text_area("Modify the prompt", value=existing_prompt)
+    # existing_prompt = generator.modified_prompt
+    # modified_prompt = st.text_area("Modify the prompt", value=existing_prompt)
     password = st.text_input("Enter password")
 
     # Check if {page_text} is still in the modified prompt
