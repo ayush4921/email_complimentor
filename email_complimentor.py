@@ -28,7 +28,7 @@ class ComplimentGenerator:
         messages = self.modified_prompt.format(page_text=page_text)
 
         response = self.client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-3.5-turbo-1106",
             messages=[
                 {"role": "system", "content": messages},
             ],
